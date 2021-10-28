@@ -1,0 +1,27 @@
+---
+"Test url-extract processor with simulate API":
+  - do:
+      ingest.put_pipeline:
+        id: "my_pipeline"
+        body:  >
+          {
+            "description": "_description",
+            "processors": [
+              {
+                "entities_extractor" : {
+                  "field" : "field1"
+                }
+              }
+            ]
+          }
+  - match: { acknowledged: true }
+
+  - do:
+      ingest.simulate:
+        id: "my_pipeline"
+        body: {docs: [ { _source: { field1: "You can reachout to me via www.nthreads.com or nauman.zubair@gmail.com or https://nthreads.com http://nthreads.com" } } ] }
+
+  - match: { docs.0.doc._source.field1: "You can reachout to me via www.nthreads.com or nauman.zubair@gmail.com or https://nthreads.com http://nthreads.com" }
+  - length: { docs.0.doc._source.entities: 2 }
+  - match: { docs.0.doc._source.entities.emails: [  "nauman.zubair@gmail.com" ] }
+  - match: { docs.0.doc._source.entities.urls: [ "www.nthreads.com", "https://nthreads.com", "http://nthreads.com" ] }

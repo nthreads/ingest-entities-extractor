@@ -1,0 +1,67 @@
+---
+"Test url-extract processor with defaults":
+  - do:
+      ingest.put_pipeline:
+        id: "my_pipeline"
+        body: >
+          {
+            "description": "_description",
+            "processors": [
+              {
+                "entities_extractor" : {
+                  "field" : "field1"
+                }
+              }
+            ]
+          }
+  - match: { acknowledged: true }
+
+  - do:
+      index:
+        index: test
+        id: 1
+        pipeline: "my_pipeline"
+        body: { field1: "You can reachout to me via www.nthreads.com or nauman.zubair@gmail.com or https://nthreads.com http://nthreads.com" }
+
+  - do:
+      get:
+        index: test
+        id: 1
+  - match: { _source.field1: "You can reachout to me via www.nthreads.com or nauman.zubair@gmail.com or https://nthreads.com http://nthreads.com" }
+  - length: { _source.entities: 2 }
+  - match: { _source.entities.urls: [ "www.nthreads.com", "https://nthreads.com", "http://nthreads.com" ] }
+  - match: { _source.entities.emails: [ "nauman.zubair@gmail.com" ] }
+
+---
+"Test url-extract processor with limmited fields works":
+  - do:
+      ingest.put_pipeline:
+        id: "my_pipeline"
+        body: >
+          {
+            "description": "_description",
+            "processors": [
+              {
+                "entities_extractor" : {
+                  "field" : "field1",
+                  "fields": [ "urls" ]
+                }
+              }
+            ]
+          }
+  - match: { acknowledged: true }
+
+  - do:
+      index:
+        index: test
+        id: 1
+        pipeline: "my_pipeline"
+        body: { field1: "You can reachout to me via www.nthreads.com or nauman.zubair@gmail.com or nauman.zubair@gmail.com or https://nthreads.com http://nthreads.com" }
+
+  - do:
+      get:
+        index: test
+        id: 1
+  - match: { _source.field1: "You can reachout to me via www.nthreads.com or nauman.zubair@gmail.com or nauman.zubair@gmail.com or https://nthreads.com http://nthreads.com" }
+  - length: { _source.entities: 1 }
+  - match: { _source.entities.urls: [ "www.nthreads.com", "https://nthreads.com", "http://nthreads.com" ] }
