@@ -49,7 +49,7 @@ dependencies {
     implementation 'org.apache.opennlp:opennlp-tools:1.9.3'
 
     // the yaml tests require a log4j2 dependency, otherwise a dependency is thrown on startup
-    runtimeOnly 'org.apache.logging.log4j:log4j-core:2.14.1'
+    runtimeOnly 'org.apache.logging.log4j:log4j-core:2.17.0'
 }
 
 // ignore javadoc linting errors for now
