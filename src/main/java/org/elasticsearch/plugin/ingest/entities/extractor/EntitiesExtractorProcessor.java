@@ -59,7 +59,6 @@ public class EntitiesExtractorProcessor extends AbstractProcessor {
 
             //mergeExisting(entities, ingestDocument, targetField);
 
-
             LinkExtractor linkExtractor = LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.EMAIL, LinkType.WWW, LinkType.URL)).build();
 
             Map<String, List<String>> groupedEntities = StreamSupport.stream(linkExtractor.extractLinks(content).spliterator(), false)
@@ -82,7 +81,7 @@ public class EntitiesExtractorProcessor extends AbstractProcessor {
                 }
             }
 
-            System.out.println("entities size " + entities.size() + " => " + entities.toString());
+            System.out.println("\n\tentities size " + entities.size() + " => " + entities);
 
             ingestDocument.setFieldValue(targetField, entities);
         }
